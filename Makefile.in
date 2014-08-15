@@ -1,0 +1,238 @@
+##########################################################################
+#                                                                        #
+#                              FLAX                                      #
+#                                                                        #
+#                       Copyright (C) 2014                               #
+#                                                                        #
+#                         Sylvain Conchon                                #
+#                                                                        #
+#                     Universite Paris-Sud 11                            #
+#                                                                        #
+#                                                                        #
+#  This file is distributed under the terms of the Apache Software       #
+#  License version 2.0                                                   #
+#                                                                        #
+##########################################################################
+
+QUIET=""
+
+# where to install the binaries
+DESTDIR=
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+BINDIR=$(DESTDIR)@bindir@
+
+# where to install the man page
+MANDIR=$(DESTDIR)@mandir@
+
+# other variables set by ./configure
+OCAMLC   = @OCAMLC@
+OCAMLOPT = @OCAMLOPT@
+OCAMLDEP = @OCAMLDEP@
+OCAMLLEX = @OCAMLLEX@
+OCAMLYACC= @OCAMLYACC@
+OCAMLLIB = @OCAMLLIB@
+OCAMLBEST= @OCAMLBEST@
+OCAMLVERSION = @OCAMLVERSION@
+OCAMLWIN32 = @OCAMLWIN32@
+OCAMLGRAPHLIB = @OCAMLGRAPHLIB@
+OCAMLGRAPHLIBDIR = @OCAMLGRAPHLIBDIR@
+EXE = @EXE@
+
+INCLUDES = $(OCAMLGRAPHLIB) -thread
+
+BFLAGS = -dtypes -g $(INCLUDES) -annot
+OFLAGS = -dtypes $(INCLUDES) -annot
+
+BIBBYTE=nums.cma unix.cma graph.cma
+
+BIBOPT=$(BIBBYTE:.cma=.cmxa)
+
+# main target
+#############
+
+NAME = flax
+BYTE=$(NAME).byte
+OPT=$(NAME)
+
+all: $(OCAMLBEST) 
+
+
+# bytecode and native-code compilation
+######################################
+
+
+CMO = version.cmo options.cmo common.cmo\
+      parser.cmo lexer.cmo \
+      fabrics.cmo\
+      galm.cmo \
+      compile.cmo promela.cmo cubicle.cmo main.cmo
+
+CMX = $(CMO:.cmo=.cmx)
+
+MAINCMO = $(CMO) main.cmo
+MAINCMX = $(MAINCMO:.cmo=.cmx)
+
+GENERATED = version.ml parser.ml parser.mli lexer.ml
+
+byte: $(NAME).byte
+opt: $(NAME)
+
+$(NAME).byte: $(MAINCMO)
+	$(if $(QUIET),@echo 'Linking $@' &&) \
+	$(OCAMLC) $(BFLAGS) -o $@ $(BIBBYTE) $^
+
+$(NAME): $(MAINCMX)
+	$(if $(QUIET),@echo 'Linking $@' &&) \
+	$(OCAMLOPT) $(OFLAGS) -o $@ $(BIBOPT) $^
+
+VERSION=0.1
+
+version.ml: config.status
+	@echo "let version = \""$(VERSION)"\"" > version.ml
+	@echo "let date = \""`date`"\"" >> version.ml
+	@echo "let rundot = \"dot\"" >> version.ml
+	@echo "let runpdf = \"open\"" >> version.ml
+	@echo "let runispin = \"ispin.tcl\"" >> version.ml
+	@echo "let runcubicle = \"cubicle \"" >> version.ml
+	@echo "let runpy = \"python\"" >> version.ml
+	@echo "let runemacs = \"/Applications/Emacs.app/Contents/MacOS/Emacs\"" >> version.ml
+
+
+
+# generic rules
+###############
+
+.SUFFIXES: .mli .ml .cmi .cmo .cmx .mll .mly
+
+.mli.cmi:
+	@true compile -w a $(BFLAGS) $< 
+	$(if $(QUIET),@echo 'Compiling $@' &&) $(OCAMLC) -c $(BFLAGS) $<
+
+.ml.cmo:
+	$(if $(QUIET),@echo 'Compiling $@' &&) $(OCAMLC) -c $(BFLAGS) $<
+	@true compile -w a $(BFLAGS) $< 
+
+.ml.o:
+	@true compile -w a $(BFLAGS) $< 
+	$(if $(QUIET),@echo 'Compiling $@' &&) $(OCAMLOPT) -c $(OFLAGS) $<
+
+.ml.cmx:
+	$(if $(QUIET),@echo 'Compiling $@' &&) $(OCAMLOPT) -c $(OFLAGS) $<
+	@true compile -w a $(BFLAGS) $< 
+
+.mll.ml:
+	$(if $(QUIET),@echo 'Compiling $<' &&) $(OCAMLLEX) $< > /dev/null
+
+.mly.ml:
+	$(if $(QUIET),@echo 'Compiling $<' &&) $(OCAMLYACC) -v $< 
+
+.mly.mli:
+	$(if $(QUIET),@echo 'Compiling $<' &&) $(OCAMLYACC) -v $< 
+
+
+# installation
+##############
+
+install:
+	mkdir -p $(BINDIR)
+	cp -f $(NAME).$(OCAMLBEST) $(BINDIR)/$(NAME)$(EXE)
+
+install-byte:
+	mkdir -p $(BINDIR)
+	cp -f $(NAME).byte $(BINDIR)/$(NAME)$(EXE)
+
+install-opt:
+	mkdir -p $(BINDIR)
+	cp -f $(NAME).opt $(BINDIR)/$(NAME)$(EXE)
+
+install-man:
+	mkdir -p $(MANDIR)/man1
+	cp -f doc/*.1 $(MANDIR)/man1
+
+
+# clean
+#######
+
+clean:: 
+	@rm -f *.cm[iox] *.o *~ *.annot
+	@rm -f $(GENERATED) *.output
+	@rm -f $(NAME).byte $(NAME).opt $(NAME)
+
+# depend
+########
+
+.depend depend:: $(GENERATED)
+	@rm -f .depend
+	@$(OCAMLDEP)  -slash *.ml *.mli >> .depend
+
+
+include .depend
+
+# file headers
+##############
+headers:
+	headache -c doc/headache_config.txt -h doc/flax_header.txt \
+		Makefile.in configure.in *.ml *.ml[ily]
+
+# export
+########
+
+EXPORTDIR=$(NAME)-$(VERSION)-x86
+TARWIN=$(EXPORTDIR).tar
+
+WINFILES = version.ml options.mli options.ml\
+	   common.mli common.ml ast.mli parser.mly lexer.mll\
+	   fabrics.mli fabrics.ml galm.mli galm.ml\
+	   compile.mli compile.ml promela.mli promela.ml\
+	   cubicle.mli cubicle.ml main.ml
+
+OGRAPHFILES = ograph/sig.mli ograph/util.mli ograph/util.ml\
+	      ograph/bitv.mli ograph/bitv.ml ograph/blocks.ml\
+              ograph/imperative.mli ograph/imperative.ml\
+              ograph/traverse.mli ograph/traverse.ml\
+              ograph/graphviz.mli ograph/graphviz.ml
+
+PYFILES = python/Aces.py python/iflow2flax.py
+
+EXAMPLEFILES = examples/deadlock1.flax examples/BXT_Audio_FW.flax
+
+ELFILES = doc/emacs/flax-mode.el doc/emacs/galm-mode.el doc/emacs/cubicle-mode.el
+
+exportwin/$(TARWIN):
+	mkdir -p exportwin
+	mkdir -p exportwin/$(EXPORTDIR)
+	mkdir -p exportwin/$(EXPORTDIR)/examples
+	mkdir -p exportwin/$(EXPORTDIR)/python
+	mkdir -p exportwin/$(EXPORTDIR)/emacs
+	cp $(ELFILES) exportwin/$(EXPORTDIR)/emacs/
+	cp compileflax.bat exportwin/$(EXPORTDIR)
+	cp run*.bat exportwin/$(EXPORTDIR)
+	cp $(WINFILES) exportwin/$(EXPORTDIR)
+	cp $(PYFILES) exportwin/$(EXPORTDIR)/python
+	cp $(EXAMPLEFILES) exportwin/$(EXPORTDIR)/examples
+	cp $(OGRAPHFILES) exportwin/$(EXPORTDIR)
+	@echo "let rundot = \"rundot.bat\"" >> exportwin/$(EXPORTDIR)/version.ml
+	@echo "let runpdf = \"runpdf.bat\"" >> exportwin/$(EXPORTDIR)/version.ml
+	@echo "let runispin = \"runispin.bat\"" >> exportwin/$(EXPORTDIR)/version.ml
+	@echo "let runcubicle = \"runcubicle.bat\"" >> exportwin/$(EXPORTDIR)/version.ml
+	@echo "let runpy = \"runpy.bat\"" >> exportwin/$(EXPORTDIR)/version.ml
+	@echo "let runemacs = \"runemacs.bat\"" >> exportwin/$(EXPORTDIR)/version.ml
+	cd exportwin ; tar cf $(TARWIN) $(EXPORTDIR)
+
+exportwin: exportwin/$(TARWIN)
+
+
+# Makefile is rebuilt whenever Makefile.in or configure.in is modified
+######################################################################
+
+Makefile: Makefile.in config.status
+	./config.status
+
+config.status: configure
+	./config.status --recheck
+
+configure: configure.in
+	autoconf 
+
+.PHONY: doc docpdf archi export release
