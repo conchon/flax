@@ -1,0 +1,2 @@
+
+runemacs %1
