@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ACES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.1.10" SVNRevision="Unknown" xmlns="http://intel.com/XMLSchema/ACES/1.0">
+  <User>AMR\sconchox</User>
+  <Timestamp>2014-08-13T11:42:39.0055503-07:00</Timestamp>
+  <Data>
+    <Title>C:\Users\sconchox\Desktop\iflow\examples\deadlock_4.vsd</Title>
+    <Description />
+    <BPMNDiagram Name="Deadlock 4" Desc="Deadlock 4">
+      <Pool Name="CFF Container" Desc="In-out dependency 1">
+        <Lane Name="Agent.4" Desc="IP6">
+          <Task Name="Task" Desc="Send Posted">
+            <CustomProperties Name="BpmnActivityType" Value="Task" />
+            <CustomProperties Name="BpmnLoopType" Value="None" />
+            <CustomProperties Name="Function" Value="IP6" />
+          </Task>
+        </Lane>
+        <Lane Name="Agent.1" Desc="IP7">
+          <Task Name="Task.30" Desc="Posted received">
+            <CustomProperties Name="BpmnActivityType" Value="Task" />
+            <CustomProperties Name="BpmnLoopType" Value="None" />
+            <CustomProperties Name="Function" Value="IP7" />
+          </Task>
+        </Lane>
+        <Phase Name="Separator" Desc="Phase">
+          <TaskRef>Task</TaskRef>
+          <TaskRef>Task.30</TaskRef>
+          <FlowRef>Message</FlowRef>
+        </Phase>
+        <Flow Name="Message" Desc=" " FromType="Task" From="Task" ToType="Task" To="Task.30">
+          <Type>Message Flow</Type>
+          <CustomProperties Name="MessageType" Value="Single" />
+          <CustomProperties Name="Targets" Value="0.0000" />
+          <CustomProperties Name="BusType" Value="IOSF SB" />
+          <CustomProperties Name="CommandType" Value="CfgRd" />
+        </Flow>
+      </Pool>
+      <Pool Name="CFF Container.30" Desc="In-out dependency 2">
+        <Lane Name="Agent.339" Desc="IP7">
+          <Task Name="Task.349" Desc="Send Posted">
+            <CustomProperties Name="BpmnActivityType" Value="Task" />
+            <CustomProperties Name="BpmnLoopType" Value="None" />
+            <CustomProperties Name="Function" Value="IP7" />
+          </Task>
+        </Lane>
+        <Lane Name="Agent.342" Desc="IP6">
+          <Task Name="Task.364" Desc="Posted received">
+            <CustomProperties Name="BpmnActivityType" Value="Task" />
+            <CustomProperties Name="BpmnLoopType" Value="None" />
+            <CustomProperties Name="Function" Value="IP6" />
+          </Task>
+        </Lane>
+        <Phase Name="Separator (vertical).33" Desc="Phase">
+          <TaskRef>Task.349</TaskRef>
+          <TaskRef>Task.364</TaskRef>
+          <FlowRef>Message.363</FlowRef>
+        </Phase>
+        <Flow Name="Message.363" Desc=" " FromType="Task" From="Task.349" ToType="Task" To="Task.364">
+          <Type>Message Flow</Type>
+          <CustomProperties Name="MessageType" Value="Single" />
+          <CustomProperties Name="Targets" Value="0.0000" />
+          <CustomProperties Name="BusType" Value="IOSF SB" />
+          <CustomProperties Name="CommandType" Value="CfgRd" />
+        </Flow>
+      </Pool>
+    </BPMNDiagram>
+    <Diagram Id="Deadlock 4">
+      <Name>Deadlock 4</Name>
+      <Source>
+        <Name>deadlock_4.vsd</Name>
+        <Timestamp>2014-08-13T11:42:21</Timestamp>
+      </Source>
+      <Node Id="1">
+        <Name>CFF Container</Name>
+        <Type>Pool</Type>
+        <Class>iFlow</Class>
+        <Text>In-out dependency 1</Text>
+        <Subnode Id="4" />
+        <Subnode Id="21" />
+        <Appearance X="2.1722440944881933" Y="4.4291338582677158" LocX="1.7785433070866095" LocY="0.96456692913385722" Angle="0" Width="3.5570866141732189" Height="1.929133858267718" />
+        <CustomProperty Name="BpmnElementType" Value="Pool" Label="ElementType" />
+        <CustomProperty Name="BpmnDocumentation" Value="0.0000" Label="Documentation" />
+        <CustomProperty Name="BpmnProcessRef" Value="Hidden" Label="ProcessRef" />
+        <CustomProperty Name="BpmnParticipantRef" Value="Hidden" Label="ParticipantRef" />
+        <CustomProperty Name="BPMNMainPool" Value="FALSE" Label="MainPool" />
+      </Node>
+      <Node Id="4">
+        <Name>Swimlane List</Name>
+        <Type>SwimlaneList</Type>
+        <Class>iFlow</Class>
+        <Text />
+        <Subnode Id="9" />
+        <Subnode Id="12" />
+        <Appearance X="0.8937007874015942" Y="5.3937007874015732" LocX="0" LocY="1.9291338582677149" Angle="0" Width="3.0570866141732091" Height="1.929133858267718" />
+      </Node>
+      <Node Id="378">
+        <Name>CFF Container.30</Name>
+        <Type>Pool</Type>
+        <Class>iFlow</Class>
+        <Text>In-out dependency 2</Text>
+        <Subnode Id="381" />
+        <Subnode Id="382" />
+        <Appearance X="5.9055118110236213" Y="4.4291338582677158" LocX="1.7785433070866015" LocY="0.964566929133859" Angle="0" Width="3.5570866141732029" Height="1.9291338582677171" />
+        <CustomProperty Name="BpmnElementType" Value="Pool" Label="ElementType" />
+        <CustomProperty Name="BpmnDocumentation" Value="0.0000" Label="Documentation" />
+        <CustomProperty Name="BpmnProcessRef" Value="Hidden" Label="ProcessRef" />
+        <CustomProperty Name="BpmnParticipantRef" Value="Hidden" Label="ParticipantRef" />
+        <CustomProperty Name="BPMNMainPool" Value="FALSE" Label="MainPool" />
+      </Node>
+      <Node Id="381">
+        <Name>Swimlane List.31</Name>
+        <Type>SwimlaneList</Type>
+        <Class>iFlow</Class>
+        <Text />
+        <Subnode Id="339" />
+        <Subnode Id="342" />
+        <Appearance X="4.6269685039370314" Y="5.393700787401575" LocX="0" LocY="1.9291338582677184" Angle="0" Width="3.0570866141731914" Height="1.9291338582677167" />
+      </Node>
+      <Node Id="9">
+        <Name>Agent.4</Name>
+        <Type>Agent</Type>
+        <Class>iFlow</Class>
+        <Text>IP6</Text>
+        <Subnode Id="29" />
+        <Appearance X="1.6545275590551378" Y="4.4291338582677158" LocX="0.76082677165352419" LocY="0.96456692913385744" Angle="0" Width="1.5216535433070484" Height="1.929133858267718" />
+        <CustomProperty Name="BpmnDocumentation" Value="0.0000" Label="Documentation" />
+      </Node>
+      <Node Id="12">
+        <Name>Agent.1</Name>
+        <Type>Agent</Type>
+        <Class>iFlow</Class>
+        <Text>IP7</Text>
+        <Subnode Id="44" />
+        <Appearance X="3.183070866141732" Y="4.4291338582677158" LocX="0.76771653543307106" LocY="0.96456692913385744" Angle="0" Width="1.5354330708661421" Height="1.929133858267718" />
+        <CustomProperty Name="BpmnDocumentation" Value="0.0000" Label="Documentation" />
+      </Node>
+      <Node Id="339">
+        <Name>Agent.339</Name>
+        <Type>Agent</Type>
+        <Class>iFlow</Class>
+        <Text>IP7</Text>
+        <Subnode Id="349" />
+        <Appearance X="5.3877952755905563" Y="4.429133858267714" LocX="0.76082677165352419" LocY="0.96456692913385744" Angle="0" Width="1.5216535433070484" Height="1.9291338582677167" />
+        <CustomProperty Name="BpmnDocumentation" Value="0.0000" Label="Documentation" />
+      </Node>
+      <Node Id="342">
+        <Name>Agent.342</Name>
+        <Type>Agent</Type>
+        <Class>iFlow</Class>
+        <Text>IP6</Text>
+        <Subnode Id="364" />
+        <Appearance X="6.9163385826771524" Y="4.429133858267714" LocX="0.76771653543307106" LocY="0.96456692913385744" Angle="0" Width="1.5354330708661426" Height="1.9291338582677167" />
+        <CustomProperty Name="BpmnDocumentation" Value="0.0000" Label="Documentation" />
+      </Node>
+      <Node Id="21">
+        <Name>Phase List</Name>
+        <Type>PhaseList</Type>
+        <Class>iFlow</Class>
+        <Text />
+        <Subnode Id="22" />
+        <Appearance X="0.89370078740158743" Y="4.8937007874015732" LocX="0" LocY="1.4291338582677149" Angle="0" Width="3.0570866141731963" Height="1.429133858267718" />
+      </Node>
+      <Node Id="22">
+        <Name>Separator</Name>
+        <Type>Phase</Type>
+        <Class>iFlow</Class>
+        <Text>Phase</Text>
+        <Subnode Id="29" />
+        <Subnode Id="44" />
+        <Appearance X="2.4222440944881951" Y="4.1791338582677167" LocX="1.5285433070866079" LocY="0.71456692913385877" Angle="0" Width="3.0570866141731963" Height="1.4291338582677176" />
+      </Node>
+      <Node Id="382">
+        <Name>Phase List.32</Name>
+        <Type>PhaseList</Type>
+        <Class>iFlow</Class>
+        <Text />
+        <Subnode Id="383" />
+        <Appearance X="4.6269685039370243" Y="4.8937007874015732" LocX="0" LocY="1.4291338582677164" Angle="0" Width="3.057086614173198" Height="1.4291338582677167" />
+      </Node>
+      <Node Id="383">
+        <Name>Separator (vertical).33</Name>
+        <Type>Phase</Type>
+        <Class>iFlow</Class>
+        <Text>Phase</Text>
+        <Subnode Id="349" />
+        <Subnode Id="364" />
+        <Appearance X="6.155511811023624" Y="4.1791338582703235" LocX="1.528543307086599" LocY="0.71456692913385822" Angle="0" Width="3.057086614173198" Height="1.4291338582677164" />
+      </Node>
+      <Node Id="29">
+        <Name>Task</Name>
+        <Type>Task</Type>
+        <Class>iFlow</Class>
+        <Text>Send Posted</Text>
+        <Appearance X="1.6673187282238533" Y="4.4562007874015768" LocX="0.49803560248480849" LocY="0.1875" Angle="0" Width="0.996071204969617" Height="0.375" />
+        <CustomProperty Name="BpmnDocumentation" Value="" Label="Documentation" />
+        <CustomProperty Name="Function" Value="IP6" />
+      </Node>
+      <Node Id="44">
+        <Name>Task.30</Name>
+        <Type>Task</Type>
+        <Class>iFlow</Class>
+        <Text>Posted received</Text>
+        <Appearance X="3.2027517990899947" Y="4.4562007874015768" LocX="0.49803560248480849" LocY="0.1875" Angle="0" Width="0.996071204969617" Height="0.375" />
+        <CustomProperty Name="BpmnDocumentation" Value="" Label="Documentation" />
+        <CustomProperty Name="Function" Value="IP7" />
+      </Node>
+      <Node Id="349">
+        <Name>Task.349</Name>
+        <Type>Task</Type>
+        <Class>iFlow</Class>
+        <Text>Send Posted</Text>
+        <Appearance X="5.4005864447592717" Y="4.4562007874015741" LocX="0.49803560248480849" LocY="0.1875" Angle="0" Width="0.996071204969617" Height="0.375" />
+        <CustomProperty Name="BpmnDocumentation" Value="" Label="Documentation" />
+        <CustomProperty Name="Function" Value="IP7" />
+      </Node>
+      <Node Id="364">
+        <Name>Task.364</Name>
+        <Type>Task</Type>
+        <Class>iFlow</Class>
+        <Text>Posted received</Text>
+        <Appearance X="6.9360195156254152" Y="4.4562007874015741" LocX="0.49803560248480849" LocY="0.1875" Angle="0" Width="0.996071204969617" Height="0.375" />
+        <CustomProperty Name="BpmnDocumentation" Value="" Label="Documentation" />
+        <CustomProperty Name="Function" Value="IP6" />
+      </Node>
+      <Edge Id="43">
+        <Name>Message</Name>
+        <Type>Message</Type>
+        <Class>iFlow</Class>
+        <Text> </Text>
+        <Subnode Id="29" IsSource="true" />
+        <Subnode Id="44" IsSource="false" />
+        <CustomProperty Name="BpmnDocumentation" Value="" Label="Documentation" />
+        <CustomProperty Name="BusType" Value="IOSF SB" Label="Bus Type" />
+        <CustomProperty Name="CommandType" Value="CfgRd" Label="Command Type" />
+      </Edge>
+      <Edge Id="363">
+        <Name>Message.363</Name>
+        <Type>Message</Type>
+        <Class>iFlow</Class>
+        <Text> </Text>
+        <Subnode Id="349" IsSource="true" />
+        <Subnode Id="364" IsSource="false" />
+        <CustomProperty Name="BpmnDocumentation" Value="" Label="Documentation" />
+        <CustomProperty Name="BusType" Value="IOSF SB" Label="Bus Type" />
+        <CustomProperty Name="CommandType" Value="CfgRd" Label="Command Type" />
+      </Edge>
+    </Diagram>
+  </Data>
+</ACES>

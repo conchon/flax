@@ -1,0 +1,214 @@
+
+(*  TASK : replace 'code' by 'action'
+           add the 'guard' attribute
+
+    BRANCH : add 'condition' attribute
+
+    CASE ?
+
+    START : add the 'guard" attribute
+
+    END
+
+    LINKS : link_name,  matching_link
+*)
+
+(* agents *)
+
+agent OS_driver
+agent DRAM
+agent Audio_ROM
+agent CSE
+
+(* global variables *)
+
+global V [ type = int, init = 0 ]
+
+(* repositories *)
+
+repository SYSMEM [ owner = DRAM, wac = 100110, rac = 01001 ]
+repository IMR [ owner = DRAM ]
+
+(* diagrams *)
+
+diagram F {
+
+local LPSRAM [ type = bool, owner = OS_driver ]
+local HPSRAM [ owner = Audio_ROM, type = bool ]
+local AUTH_STATUS [ owner = CSE, type = bool, init = false ]
+local FW [ owner = OS_driver, type = bool ]
+
+node N1 [ agt = OS_driver, shape = START ]
+
+node N2 [ agt = OS_driver, shape = TASK, 
+          label = "choose fw", 
+          action = "choose(FW)" ]
+
+node N3 [ agt = OS_driver, shape = TASK, 
+          label = "Wake audio" ]
+
+node N4 [ agt = DRAM, shape = TASK ]
+node N5 [ agt = DRAM, shape = TASK ]
+node N6 [ agt = DRAM, shape = TASK ]
+node N7 [ agt = DRAM, shape = TASK ]
+node N8 [ agt = DRAM, shape = TASK ]
+
+node N9 [ agt = Audio_ROM, shape = TASK, 
+          action = "Request IMR" ]
+
+node N10 [ agt = Audio_ROM, shape = NPSYNC]
+
+node N11 [ agt = Audio_ROM, shape = TASK ]
+
+node N12 [ agt = Audio_ROM, shape = NPSYNC ]
+
+node N13 [ agt = Audio_ROM, shape = TASK, 
+           label = "Copy FW from System Memory to HPSRAM",
+           action = "HPSRAM = msg_data" ]
+
+node N14 [ agt = Audio_ROM, shape = TASK, 
+           label = "Copy FW from HPSRAM to IMR" ]
+
+node N15 [ agt = Audio_ROM, shape = TASK, 
+           label = "Request FW authentication" ]
+
+node N16 [ agt = Audio_ROM, shape = NPSYNC ]
+
+node N17 [ agt = Audio_ROM, shape = BRANCH, 
+           label = "Chech authentication status",
+           action = "msg_data != 0" ]
+
+node N18 [ agt = Audio_ROM, shape = TASK ]
+
+node N19 [ agt = Audio_ROM, shape = TASK, 
+           label = "Abort"]
+
+node N20 [ agt = Audio_ROM, shape = NPSYNC ]
+
+node N21 [ agt = Audio_ROM, shape = TASK, 
+           label = "Load IMR into LPSRAM, set 32-bit magic value",
+	   action = "LPSRAM = msg_data" ]
+
+node N22 [ agt = Audio_ROM, shape = TASK, 
+           label = "Execute FW from LPSRAM",
+	   action = "assert (LPSRAM != 0)" ]
+
+node N23 [ agt = CSE, shape = TASK, 
+           label = "Make IMR writable by cAVS, return size",
+	   action = "unlock(IMR)" ]
+
+node N24 [ agt = CSE, shape = TASK, 
+           label = "Make IMR read-only by cAVS",
+	   action = "lock(IMR)" ]
+
+node N25 [ agt = CSE, shape = TASK ]
+
+node N26 [ agt = CSE, shape = NPSYNC ]
+
+node N27 [ agt = CSE, shape = TASK, 
+           label = "Authenticate Audio FW in IMR",
+	   action = "auth_status = msg_data" ]
+
+arc A1 [ from = N1, to = N2, shape = SEQUENCE ]
+
+arc A2 [ from = N2, to = N3, shape = SEQUENCE ]
+
+arc A3 [ from = N2, to = N4, shape = MESSAGE, 
+         proto = GENERIC, opcode = CfgWr, 
+	 data_type = bool, repo = SYSMEM, data = FW, 
+	 label = "Write System" ]
+
+arc A4 [from = N3, to = N9, shape = MESSAGE, 
+        proto = WIRE, label = "Reset" ]
+
+arc A5 [from = N9, to = N23, shape = MESSAGE, 
+        proto = GENERIC, opcode = CfgWr, 
+	label = "IMR_Req" ]
+
+arc A6 [from = N9, to = N10, shape = SEQUENCE ]
+
+arc A7 [from = N23, to = N10, shape = MESSAGE, 
+        proto = GENERIC, opcode = CfgWr,
+        label = "IMR_Resp" ]
+
+arc A8 [from = N10, to = N11, shape = SEQUENCE ]
+
+arc A9 [from = N11, to = N5, shape = MESSAGE,
+        proto = GENERIC, opcode = CfgRd, 
+	repo = SYSMEM,
+        label = "Read System Memory" ]
+
+arc A10 [from = N11, to = N12, shape = SEQUENCE ]
+
+arc A11 [from = N5, to = N12, shape = MESSAGE, 
+         proto = GENERIC, opcode = Compl, 
+	 data = SYSMEM,
+	 label = "Compl" ]
+
+arc A12 [from = N12, to = N13, shape = SEQUENCE ]
+
+arc A13 [from = N13, to = N14, shape = SEQUENCE ]
+
+arc A14 [from = N14, to = N6, shape = MESSAGE, 
+         proto = GENERIC, opcode = CfgWr, 
+	 repo = IMR, data = HPSRAM,
+	 label = "Write" ]
+
+arc A15 [from = N14, to = N15, shape = SEQUENCE ]
+
+arc A16 [from = N15, to = N24, shape = MESSAGE, 
+         proto = GENERIC, opcode = CfgWr,	
+         label = "Auth_Req" ]
+
+arc A17 [from = N15, to = N16, shape = SEQUENCE ]
+
+arc A18 [from = N24, to = N25, shape = SEQUENCE ]
+
+arc A19 [from = N25, to = N7, shape = MESSAGE, 
+         proto = GENERIC, opcode = CfgRd, repo = IMR,
+         label = "Read IMR" ]
+
+arc A20 [from = N25, to = N26, shape = SEQUENCE ]
+
+arc A21 [from = N7, to = N26, shape = MESSAGE, 
+         proto = GENERIC, opcode = Compl, 
+	 data = IMR,
+	 label = "Compl" ]
+
+
+arc A22 [from = N26, to =  N27, shape = SEQUENCE ]
+
+
+arc A23 [from = N27, to = N16, shape = MESSAGE, 
+         proto = GENERIC, opcode = CfgWr, 
+	 data_type = bool, data = AUTH_STATUS,
+	 label = "Auth_resp(sts)" ]
+
+
+arc A24 [from = N16, to = N17, shape = SEQUENCE ]
+
+
+arc A25 [from = N17, to = N18, shape = SEQUENCE, cond = Yes, 
+         label = "Good FW"]
+
+
+arc A26 [from = N17, to = N19, shape = SEQUENCE, cond = No,  
+         label = "no"]
+
+arc A27 [from = N18, to = N8, shape = MESSAGE, 
+         proto = GENERIC, opcode = CfgRd, 
+	 repo = IMR,
+         label = "Read IMR" ]
+
+arc A28 [from = N8, to = N20, shape = MESSAGE, 
+         proto = GENERIC, opcode = Compl, 
+	 data = IMR,
+         label = "Compl" ]
+
+arc A29 [from = N18, to = N20, shape = SEQUENCE ]
+
+arc A30 [from = N20, to = N21, shape = SEQUENCE ]
+
+arc A31 [from = N21, to =  N22, shape = SEQUENCE ]
+
+}

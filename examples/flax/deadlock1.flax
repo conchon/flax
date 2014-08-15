@@ -1,0 +1,86 @@
+
+agent IP0
+agent IP1
+
+diagram Deadlock1_1 {
+
+node N1 [ agt = IP0, shape = TASK, 
+         label = "Send NP" ]
+
+node N2 [ agt = IP0, shape = NPSYNC ]
+
+node N3 [ agt = IP0, shape = TASK, 
+          label = "Allow new IP\ntransactions\nin or out" ]
+
+node N4 [ agt = IP1, shape = TASK, 
+          label = "Send completion"]
+
+arc A1 [ from = N1, to = N4, shape = MESSAGE, 
+         proto = IOSF_SB, opcode = CfgRd,
+	 label = "IOSB_NP_Read"]
+
+arc A2 [ from = N1, to = N2, shape = SEQUENCE ]
+
+arc A3 [ from = N4, to = N2, shape = MESSAGE, 
+         proto = IOSF_SB, opcode = Compl, 
+	 label = "OSB_Completion"]
+
+arc A4 [ from = N2, to = N3, shape = SEQUENCE ]
+
+}
+
+diagram Deadlock1_2 {
+
+node N5 [ agt = IP1, shape = TASK, 
+          label = "Send NP" ]
+
+node N6 [ agt = IP1, shape = NPSYNC ]
+
+node N7 [ agt = IP1, shape = TASK, 
+          label = "Allow new IP\ntransactions\nin or out" ]
+
+node N8 [ agt = IP0, shape = TASK, 
+          label = "Send completion"]
+
+arc A5 [ from = N5, to = N8, shape = MESSAGE, 
+         proto = IOSF_SB, opcode = CfgRd,
+	 label = "IOSB_NP_Read"]
+
+arc A6 [ from = N5, to = N6, shape = SEQUENCE ]
+
+arc A7 [ from = N8, to = N6, shape = MESSAGE, 
+         proto = IOSF_SB, opcode = Compl, 
+	 label = "OSB_Completion"]
+
+arc A8 [ from = N6, to = N7, shape = SEQUENCE ]
+
+
+}
+
+(* 
+
+
+transition N2_consume_deadlock (i)
+requires {
+	  L7 = True &&
+	  Q[i] = True && forall_other z. (i<=z || Q[z] = False) &&
+	  Q_proto[i] = IOSF_SB && Q_mode[i] <> Comp && Q_to [i]=IP0 }
+{
+ 
+ Deadlock := True
+}
+
+transition N6_consume_deadlock (i)
+requires {
+	  L12 = True &&
+	  Q[i] = True && forall_other z. (i<=z || Q[z] = False) &&
+	  Q_proto[i] = IOSF_SB && Q_mode[i] <> Comp && Q_to[i]=IP1 }
+{
+
+ Deadlock := True
+
+}
+
+
+
+*)
