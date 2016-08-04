@@ -61,7 +61,8 @@ type msg_type = {
   msg_opcode : string;
 }
 
-type node_shape = Start | Task | PSync | NPSync | Branch
+type node_shape =
+  | Start | Task | PSync | NPSync | Branch | InLink | OutLink
 
 type action = Create of msg_type | Consume of msg_type | Other of string
 
@@ -70,6 +71,7 @@ type node = {
   node_agent : string;
   node_shape : node_shape;
   node_label : string;
+  node_connect : string;
   mutable node_guard : string;
   mutable node_action : action;
 }

@@ -40,6 +40,7 @@
       | WAC -> "wac"
       | RAC -> "rac"
       | OPCODE -> "opcode"
+      | CONNECT -> "connect"
       | _ -> assert false
     in
     let msg = 
@@ -105,6 +106,8 @@
     | "NPSYNC" -> NPSync
     | "PSYNC" -> PSync
     | "BRANCH" -> Branch
+    | "INLINK" -> InLink
+    | "OUTLINK" -> OutLink
     | _ -> assert false
 
   let make_node n l = 
@@ -114,6 +117,7 @@
       node_shape = Start;
       node_label = "";
       node_guard = "";
+      node_connect = "";
       node_action = Other "";
     }
     in 
@@ -124,6 +128,7 @@
 	   | SHAPE -> { n with node_shape = node_shape_of v }
 	   | LABEL -> { n with node_label = v }
 	   | GUARD -> { n with node_guard = v }
+	   | CONNECT -> { n with node_connect = v }
 	   | ACTION -> { n with node_action = Other v }
 	   | _ -> assert false
       ) n l
@@ -200,12 +205,12 @@
 /* attributes */
 %token OWNER TYPE INIT WAC RAC
 %token PROTO DATATYPE REPO DATA 
-%token SHAPE LABEL
+%token SHAPE LABEL CONNECT
 %token AGT PAUSE GUARD ACTION OPCODE
 %token NAME MSG COND FROM TO
 
 /* shapes */
-%token TASK START NPSYNC PSYNC BRANCH
+%token TASK START NPSYNC PSYNC BRANCH INLINK OUTLINK
 %token SEQUENCE MESSAGE
 
 /* constructors */
@@ -350,6 +355,7 @@ attr:
 | OPCODE EQ constructors { OPCODE, $3 }
 | FROM EQ MIDENT { FROM, $3 }
 | TO EQ MIDENT { TO, $3 }
+| CONNECT EQ STRING { CONNECT, $3 }
 ;
 
 constructors:
@@ -369,4 +375,6 @@ shape:
 | BRANCH { "BRANCH" }
 | SEQUENCE { "SEQUENCE" }
 | MESSAGE { "MESSAGE" }
+| INLINK { "INLINK" }
+| OUTLINK { "OUTLINK" }
 ;

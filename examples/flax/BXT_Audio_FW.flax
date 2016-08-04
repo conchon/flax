@@ -66,6 +66,11 @@ node N13 [ agt = Audio_ROM, shape = TASK,
            label = "Copy FW from System Memory to HPSRAM",
            action = "HPSRAM = msg_data" ]
 
+node N13Out [ agt = OS_driver, shape = OUTLINK, connect = "N13In"]
+
+node N13In [ agt = OS_driver, shape = INLINK ]
+
+
 node N14 [ agt = Audio_ROM, shape = TASK, 
            label = "Copy FW from HPSRAM to IMR" ]
 
@@ -147,7 +152,12 @@ arc A11 [from = N5, to = N12, shape = MESSAGE,
 
 arc A12 [from = N12, to = N13, shape = SEQUENCE ]
 
-arc A13 [from = N13, to = N14, shape = SEQUENCE ]
+(*arc A13 [from = N13, to = N14, shape = SEQUENCE ]*)
+
+arc A13Out [from = N13, to = N13Out, shape = SEQUENCE ]
+
+arc A13In [from = N13In, to = N14, shape = SEQUENCE ]
+
 
 arc A14 [from = N14, to = N6, shape = MESSAGE, 
          proto = GENERIC, opcode = CfgWr, 

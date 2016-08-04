@@ -58,6 +58,7 @@
 	"from", FROM;
 	"to", TO;
 	"opcode", OPCODE;
+	"connect", CONNECT;
       ]
       
   let shapes = Hashtbl.create 97
@@ -70,6 +71,8 @@
 	"NPSYNC", NPSYNC;
 	"START", START;
 	"BRANCH", BRANCH;
+	"INLINK", INLINK;
+	"OUTLINK", OUTLINK;
 	"SEQUENCE", SEQUENCE;
 	"MESSAGE", MESSAGE 
       ]

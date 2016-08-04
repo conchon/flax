@@ -145,7 +145,10 @@ let gen_epsilon_loc =
   let i = ref 0 in
   fun () -> incr i; "EL"^(string_of_int !i)
 
-
+let gen_link = 
+  let i = ref 0 in
+  fun () -> incr i; "LINK"^(string_of_int !i)
+			   
 (* Auxilary functions mainly on the graph structure *)
 
 let set_of_list l = List.fold_right S.add l S.empty
@@ -154,10 +157,10 @@ let filter g p =
   G.fold_edges_e (fun e l -> if p e then e::l else l) g []
 
 let find_n graph n = 
-  try Hashtbl.find graph.m_nodes n with Not_found -> failwith "find_n"
+  try Hashtbl.find graph.m_nodes n with Not_found -> failwith ("find_n : "^n)
 
 let find_e graph e = 
-  try Hashtbl.find graph.m_arcs e with Not_found -> failwith "find_e"
+  try Hashtbl.find graph.m_arcs e with Not_found -> failwith ("find_e : "^e)
       
 let owner_of_node graph e = 
   try (Hashtbl.find graph.m_nodes e).node_id.node_agent
@@ -315,7 +318,7 @@ let pp_services fmt graph =
    node (Start, End, etc.) as well as the name of the service it
    belongs to.
 
-   2. An arc N1 -- A --> N2 is just represtened by a triple of strings
+   2. An arc N1 -- A --> N2 is just represented by a triple of strings
    ("N1", "A", "N2")
 
 *)
@@ -812,6 +815,70 @@ let translate_to_galm graph =
     graph.g_seq { rules = []; init_locs = S.empty; agents = []}
 
 
+let inline_links g =
+  let inlinks = Hashtbl.create 107 in 
+  let outlinks = Hashtbl.create 107 in  
+  G.iter_edges_e
+    (fun e ->
+     let v1 = G.E.src e in
+     let v2 = G.E.dst e in
+     let n1 = (find_n g v1).node_id in
+     let n2 = (find_n g v2).node_id in
+     if n1.node_shape = InLink then
+       let l = try e :: (Hashtbl.find inlinks n1.node_name)
+	       with Not_found -> [e] in
+       Hashtbl.add inlinks n1.node_name l
+     else if n2.node_shape = OutLink then
+       let l = try e :: (Hashtbl.find outlinks v2)
+	       with Not_found -> [e] in
+       Hashtbl.add outlinks v2 l
+    ) g.g_seq;
+  
+  Hashtbl.iter
+    (fun v out_edges ->
+     let in_edges = Hashtbl.find inlinks (find_n g v).node_id.node_connect in
+     match in_edges with
+     | [] | _ :: _ :: _ -> assert false
+     | [ie] ->
+	List.iter
+	  (fun oe ->
+	   let from = G.E.src oe in
+	   let dst = G.E.dst ie in
+	   let arc_name = gen_link () in
+	   Format.eprintf "link from : %s to %s@." from dst;
+	   G.add_edge_e g.g_seq (from, arc_name, dst);
+	   let a = {
+	       arc_name = arc_name;
+	       arc_from = from;
+	       arc_to = dst;
+	       arc_shape = Sequence;
+	       arc_label = "";
+	       arc_cond = None;
+	       arc_msg = None;
+	     }
+	   in
+	   Hashtbl.add g.m_arcs arc_name { arc = a; locs = [] };
+	  )
+	  out_edges	
+    ) outlinks;
+
+  (* cleaning *)
+  Hashtbl.iter
+    (fun v out_edges ->
+     List.iter (G.remove_edge_e g.g_seq) out_edges;
+     G.remove_vertex g.g_seq v) outlinks;
+
+  Hashtbl.iter
+    (fun _ in_edges ->
+     match in_edges with
+     | [] | _ :: _ :: _ -> assert false
+     | [ie] ->
+	G.remove_edge_e g.g_seq ie;
+	G.remove_vertex g.g_seq (G.E.src ie)) inlinks
+
+     
+    
+  
 (* Entry point *)
 
 let compile iflow = 
@@ -826,7 +893,8 @@ let compile iflow =
     g_msg = g_msg } 
   in
   init_graph graph iflow;
-  
+  inline_links graph;
+
   if debug && verbose = 2 then pp_graph graph;
   
   find_services graph;
@@ -835,7 +903,7 @@ let compile iflow =
   standard_locations graph;
   
   if show_graph then pp_graph graph;
-
+ 
   let g = translate_to_galm graph in
   { g with agents = iflow.agents }
 
